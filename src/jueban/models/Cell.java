@@ -37,7 +37,7 @@ public class Cell {
     }
 
 
-    public boolean IsCover() {
+    public boolean isCover() {
         return is_cover;
     }
 
@@ -45,7 +45,7 @@ public class Cell {
         this.is_cover = is_cover;
     }
 
-    public boolean IsFlag() {
+    public boolean isFlag() {
         return is_flag;
     }
 
@@ -53,7 +53,7 @@ public class Cell {
         this.is_flag = is_flag;
     }
 
-    public boolean IsDoubt() {
+    public boolean isDoubt() {
         return is_doubt;
     }
 

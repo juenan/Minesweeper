@@ -8,7 +8,7 @@ import jueban.models.MinePane;
 public class MinePaneTest {
 
     public static void main(String args[]){
-        MinePane pane = new MinePane(100,100,9999);
+        MinePane pane = new MinePane(100,100,501);
 
 
         pane.printPane();

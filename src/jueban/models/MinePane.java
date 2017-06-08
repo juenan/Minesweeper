@@ -1,5 +1,8 @@
 package jueban.models;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 /**
  * 扫雷面板
  * Created by jueban on 2017/6/7.
@@ -16,12 +19,10 @@ public class MinePane {
         if(weight < MAX_WEIGHT)this.weight = weight;else this.weight = MAX_WEIGHT;
         if(height < MAX_HEIGHT)this.height = height;else this.height = MAX_HEIGHT;
         if(mine_count < (weight*height))this.mine_count = mine_count;
-        else this.mine_count = this.height*this.weight;
+        else this.mine_count = this.height*this.weight-1;
 
         //初始化格子
         initCell();
-
-
     }
 
     /**
@@ -99,25 +100,19 @@ public class MinePane {
 
     /**
      * 计算格子周围雷的数量
-     * @param x 格子的x轴
-     * @param y 格子的y轴
+     * @param x 格子的x坐标
+     * @param y 格子的y坐标
      * @return 格子周围雷的数量
      */
     private int computMineCount(int x,int y){
         int mine_count = 0;
-        for(int y1 = -1;y1<2;y1++) {
-            for (int x1 = -1; x1 < 2; x1++) {
-                if (x1 == 0 && y1 == 0) continue;
-                int x2 = x + x1;
-                int y2 = y + y1;
-                if (x2 < 0 || x2 > weight-1 || y2 < 0 || y2 > height-1) continue;
-                if (cells[y2][x2].isMine()) mine_count++;
-            }//for
-        }//for
+        Cell around_cell[] = aroundCells(x,y);
+        for(int i = 0;i<around_cell.length;i++){
+            if(around_cell[i].isMine())mine_count++;
+        }
         return mine_count;
 
     }
-
 
     /**
      * 计算所有非雷格子周围雷数
@@ -126,15 +121,85 @@ public class MinePane {
         for(int y = 0;y<height;y++) {
             for (int x = 0; x < weight; x++) {
                 cells[y][x].setAroundMineCount(computMineCount(x,y));
-
             }//for
         }//for
     }
 
+    /**
+     * 扫雷
+     * @param x x坐标
+     * @param y y坐标
+     * @return 是否为雷
+     */
+    public boolean Sweep(int x,int y){
+        cells[y][x].setCover(false);
+        return cells[y][x].isMine();
+    }
+
+    /**
+     * 扫描周围的雷
+     * @param x
+     * @param y
+     * @return 返回是否打开地雷格子
+     */
+    public boolean aroundSweep(int x,int y) throws FlagNotEqualsMineException {
+        //查看该坐标周围其中的数量
+        Cell arount_cells[] = aroundCells(x,y);
+        int flag_count = 0;
+        for(int i = 0;i<arount_cells.length;i++){
+            if(arount_cells[i].isFlag())flag_count++;
+        }
+
+        //如果周围旗数等于该格子around_mine_count则打开周围的格子
+        if(flag_count==cells[y][x].getArroundMineCount()){
+            for(int i = 0;i<arount_cells.length;i++){
+                if(arount_cells[i].isFlag())continue;
+                if(arount_cells[i].isMine()){
+                    arount_cells[i].setCover(false);
+                    return true;
+                }else {
+                    arount_cells[i].setCover(false);
+                }
+
+            }
+        }else {
+            throw new FlagNotEqualsMineException();
+        }
+
+        return false;
+
+    }
 
 
+    /**
+     * 返回某格子周围的格子
+     * @param x x坐标
+     * @param y y坐标
+     * @return 返回某格子周围的格子
+     */
+    private Cell[] aroundCells(int x,int y){
+        //计算x,y坐标周围的格子，并将结果放在ArrayList里面
+        ArrayList<Cell> array = new ArrayList<>();
+        for(int y1=-1;y1<2;y1++){
+            for(int x1=-1;x1<2;x1++){
+                if (x1 == 0 && y1 == 0) continue;
+                int x2 = x + x1;
+                int y2 = y + y1;
+                if (x2 < 0 || x2 > weight-1 || y2 < 0 || y2 > height-1) continue;
+                array.add(cells[y2][x2]);
+            }
+        }
 
-
+        //将ArrayList里面的内容转移到Cell数组里
+        Iterator<Cell> it = array.iterator();
+        Cell result[] = new Cell[array.size()];
+        int index = 0;
+        while(it.hasNext()){
+            result[index] = it.next();
+            index++;
+        }
+        return result;
+    }
 
 
     public void printPane(){
