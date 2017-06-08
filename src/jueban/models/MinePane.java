@@ -1,5 +1,9 @@
 package jueban.models;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.ImageObserver;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -129,6 +133,22 @@ public class MinePane {
      * @return 是否为雷
      */
     public boolean sweep(int x,int y){
+        if(!cells[y][x].isMine() && cells[y][x].getArroundMineCount() == 0 && cells[y][x].isCover()){
+
+            cells[y][x].setCover(false);
+
+            for(int y1=-1;y1<2;y1++){
+                for(int x1=-1;x1<2;x1++){
+                    if(y1 == 0 && x1 == 0)continue;
+                    int x2 = x+x1;
+                    int y2 = y+y1;
+                    if (x2 < 0 || x2 > weight-1 || y2 < 0 || y2 > height-1) continue;
+                    if(cells[y2][x2].isCover() && !cells[y2][x2].isFlag() && !cells[y2][x2].isDoubt())sweep(x2,y2);
+                }
+            }
+        }
+
+
         cells[y][x].setCover(false);
         return cells[y][x].isMine();
     }
@@ -140,6 +160,7 @@ public class MinePane {
      * @return 返回是否打开地雷格子
      */
     public boolean aroundSweep(int x,int y) throws FlagNotEqualsMineException {
+        if(cells[y][x].isCover())return sweep(x,y);
         //查看该坐标周围其中的数量
         Cell arount_cells[] = aroundCells(x,y);
         int flag_count = 0;
@@ -226,6 +247,50 @@ public class MinePane {
             }
             System.out.println("");
         }
+    }
+
+
+    public void paintPane(int weight,int height,Graphics g){
+        int weight_pixel = weight/this.weight;
+        int height_pixel = height/this.height;
+        Image cover = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Cover.png").getImage();
+        cover = new ImageIcon(cover.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+        Image flag = new ImageIcon("img\\Flag.png").getImage();
+        flag = new ImageIcon(flag.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+        Image doubt = new ImageIcon("img\\Doubt.png").getImage();
+        doubt = new ImageIcon(doubt.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+        Image num = new ImageIcon("img\\Num.png").getImage();
+        num = new ImageIcon(num.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+        for(int y = 0;y<this.height;y++){
+
+            for(int x = 0;x<this.weight;x++){
+
+
+
+                if(cells[y][x].isCover()){
+                    g.drawImage(cover, x*weight_pixel,y*height_pixel, null);
+                    if(cells[y][x].isFlag()){
+                        g.drawImage(flag,x*weight_pixel,y*height_pixel, null);
+                    }
+                    if(cells[y][x].isDoubt()){
+                        g.drawImage(doubt,x*weight_pixel,y*height_pixel, null);
+                    }
+                }else {
+                    g.drawImage(num,x*weight_pixel,y*height_pixel, null);
+
+                }
+
+
+                /*
+                if(cells[y][x].isMine()){
+
+                    g.drawString("*",x*weight_pixel,y*height_pixel);
+                }else {
+                    g.drawString(cells[y][x].getArroundMineCount()+"",x*weight_pixel,y*height_pixel);
+                }*/
+            }
+        }
+
     }
 
 
