@@ -8,11 +8,18 @@ import jueban.models.MinePane;
 public class MinePaneTest {
 
     public static void main(String args[]){
-        MinePane pane = new MinePane(10,10,25);
+        MinePane pane = new MinePane(100,100,9999);
 
 
         pane.printPane();
         System.out.println();
+        System.out.println();
+        System.out.println();
+        long start = System.currentTimeMillis();
+        pane.firstSweep(5,5);
+        long end = System.currentTimeMillis();
+        System.out.println(end-start);
+        pane.printPane();
 
 
 

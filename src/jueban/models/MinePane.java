@@ -1,6 +1,7 @@
 package jueban.models;
 
 /**
+ * 扫雷面板
  * Created by jueban on 2017/6/7.
  */
 public class MinePane {
@@ -12,7 +13,7 @@ public class MinePane {
 
     public MinePane(int weight, int height, int mine_count) {
         //初始化数据
-        if(weight < MAX_WEIGHT)this.weight = weight;else this.height = MAX_WEIGHT;
+        if(weight < MAX_WEIGHT)this.weight = weight;else this.weight = MAX_WEIGHT;
         if(height < MAX_HEIGHT)this.height = height;else this.height = MAX_HEIGHT;
         if(mine_count < (weight*height))this.mine_count = mine_count;
         else this.mine_count = this.height*this.weight;
@@ -60,14 +61,38 @@ public class MinePane {
         }//for
 
         //计算非雷格子周围雷数
-        for(int y = 0;y<height;y++) {
-            for (int x = 0; x < weight; x++) {
+        flushCellsMineCount();
 
-                cells[y][x].setAroundMineCount(computMineCount(x,y));
 
-            }//for
-        }//for
 
+    }
+
+    /**
+     * 第一次扫雷
+     * @param x x轴
+     * @param y y轴
+     */
+    public void firstSweep(int x,int y){
+        if(cells[y][x].isMine()){
+            int x1 = (int)(Math.random()*weight) % weight;
+            int y1 = (int)(Math.random()*height) % height;
+            while(cells[y1][x1].isMine()){
+                if(x1<(weight-1)){
+                    x1++;
+                }else if(x1==(weight-1) && y1<(height-1)){
+                    x1=0;
+                    y1++;
+                }else {
+                    y1=0;
+                    x1=0;
+                }
+            }
+            Cell temp = cells[y][x];
+            cells[y][x] = cells[y1][x1];
+            cells[y1][x1] = temp;
+        }
+        cells[y][x].setCover(false);
+        flushCellsMineCount();
 
 
     }
@@ -94,6 +119,24 @@ public class MinePane {
     }
 
 
+    /**
+     * 计算所有非雷格子周围雷数
+     */
+    private void flushCellsMineCount(){
+        for(int y = 0;y<height;y++) {
+            for (int x = 0; x < weight; x++) {
+                cells[y][x].setAroundMineCount(computMineCount(x,y));
+
+            }//for
+        }//for
+    }
+
+
+
+
+
+
+
     public void printPane(){
         for(int y = 0;y<height;y++){
             for(int x = 0;x<weight;x++){
@@ -107,6 +150,9 @@ public class MinePane {
             System.out.println("");
         }
     }
+
+
+
 
 
 
