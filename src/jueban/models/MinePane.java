@@ -63,9 +63,6 @@ public class MinePane {
 
         //计算非雷格子周围雷数
         flushCellsMineCount();
-
-
-
     }
 
     /**
@@ -92,9 +89,8 @@ public class MinePane {
             cells[y][x] = cells[y1][x1];
             cells[y1][x1] = temp;
         }
-        cells[y][x].setCover(false);
         flushCellsMineCount();
-
+        sweep(x,y);
 
     }
 
@@ -126,12 +122,13 @@ public class MinePane {
     }
 
     /**
-     * 扫雷
+     * 扫雷    TBD    TBD       TBD           TBD              TBD                   TBD
+     * 改正不会连续清除周围格子周围雷数为0的问题
      * @param x x坐标
      * @param y y坐标
      * @return 是否为雷
      */
-    public boolean Sweep(int x,int y){
+    public boolean sweep(int x,int y){
         cells[y][x].setCover(false);
         return cells[y][x].isMine();
     }
@@ -154,6 +151,7 @@ public class MinePane {
         if(flag_count==cells[y][x].getArroundMineCount()){
             for(int i = 0;i<arount_cells.length;i++){
                 if(arount_cells[i].isFlag())continue;
+                if(arount_cells[i].isDoubt())continue;
                 if(arount_cells[i].isMine()){
                     arount_cells[i].setCover(false);
                     return true;
@@ -167,9 +165,23 @@ public class MinePane {
         }
 
         return false;
-
     }
 
+    /**
+     * 设置某个格子的状态
+     * @param x
+     * @param y
+     */
+    public void setFlag(int x,int y){
+        if(!cells[y][x].isFlag() && !cells[y][x].isDoubt()){
+            cells[y][x].setFlag(true);
+        }else if(cells[y][x].isFlag() && !cells[y][x].isDoubt()){
+            cells[y][x].setFlag(false);
+            cells[y][x].setDoubt(true);
+        }else if(cells[y][x].isDoubt()){
+            cells[y][x].setDoubt(false);
+        }
+    }
 
     /**
      * 返回某格子周围的格子
