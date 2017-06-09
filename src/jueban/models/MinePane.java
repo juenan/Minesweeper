@@ -38,25 +38,23 @@ public class MinePane {
 
         //初始化格子并将雷放入数组前面
         int mine = 0;
-        int x = 0;
-        int y = 0;
-        for(int i = 0;i<height*weight;i++){
-            Point point = getNextCell(x,y);
-            if(mine < mine_count){
-                cells[y][x] = new Cell();
-                mine++;
-            }else {
-                cells[y][x] = new Cell(0);
-            }//if
-
+        for(int y = 0;y<height;y++){
+            for(int x = 0;x<weight;x++){
+                if(mine < mine_count){
+                    cells[y][x] = new Cell();
+                    mine++;
+                }else {
+                    cells[y][x] = new Cell(0);
+                }//if
+            }//for
         }//for
 
         //将雷的位置打乱，采用洗牌算法
         int x1 = 0;
         int y1 = 0;
         for(int i = 0;i<mine_count;i++){
-            x = (int)(Math.random()*weight) % weight;
-            y = (int)(Math.random()*height) % height;
+            int x = (int)(Math.random()*weight) % weight;
+            int y = (int)(Math.random()*height) % height;
             Cell temp = cells[y1][x1];
             cells[y1][x1] = cells[y][x];
             cells[y][x] = temp;
