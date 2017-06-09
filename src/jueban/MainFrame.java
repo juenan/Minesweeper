@@ -1,9 +1,13 @@
 package jueban;
 
 import javax.swing.*;
+
+import jueban.models.FlagNotEqualsMineException;
 import jueban.models.MinePane;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -15,16 +19,67 @@ public class MainFrame extends JFrame {
     private JPanel main_panel;
 
     public MainFrame(){
-        pane = new MinePane(10,10,10);
+        pane = new MinePane(15,15,30);
         main_panel = new JPanel(){
             public void paint(Graphics g){
                 pane.paintPane(this.getWidth(),this.getHeight(),g);
             }
         };
 
-        pane.firstSweep(1,1);
 
         pane.printPane();
+
+        main_panel.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int x = e.getX() / (main_panel.getWidth()/15);
+                int y = e.getY() / (main_panel.getHeight()/15);
+                if(e.getClickCount() == 1){
+
+                    if(e.getButton() == MouseEvent.BUTTON1){
+                        System.out.println("x:"+x+",y:"+y);
+                        pane.sweep(x,y);
+                    }else if(e.getButton() == MouseEvent.BUTTON3){
+                        pane.setFlag(x,y);
+                    }
+                }
+
+                if(e.getClickCount() > 1){
+                    if(e.getButton() == MouseEvent.BUTTON1){
+                        try {
+                            pane.aroundSweep(x,y);
+                        } catch (FlagNotEqualsMineException e1) {
+                            e1.printStackTrace();
+                        }
+                    }else if(e.getButton() == MouseEvent.BUTTON3){
+                        pane.setFlag(x,y);
+                    }
+                }
+
+                main_panel.repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+
 
         this.add(main_panel,BorderLayout.CENTER);
 

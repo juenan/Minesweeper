@@ -14,6 +14,7 @@ import java.util.Iterator;
 public class MinePane {
     final int MAX_WEIGHT = 100;//最大宽度
     final int MAX_HEIGHT = 100;//最大长度
+    private boolean is_first_sweep = true;
 
     int weight,height,mine_count;//扫雷面板的宽度，长度和雷的数量 长度宽度最大值为100;
     Cell cells[][];//网格数组
@@ -37,32 +38,31 @@ public class MinePane {
 
         //初始化格子并将雷放入数组前面
         int mine = 0;
-        for(int y = 0;y<height;y++){
-            for(int x = 0;x<weight;x++){
-                if(mine < mine_count){
-                    cells[y][x] = new Cell();
-                    mine++;
-                }else {
-                    cells[y][x] = new Cell(0);
-                }//if
-            }//for
+        int x = 0;
+        int y = 0;
+        for(int i = 0;i<height*weight;i++){
+            Point point = getNextCell(x,y);
+            if(mine < mine_count){
+                cells[y][x] = new Cell();
+                mine++;
+            }else {
+                cells[y][x] = new Cell(0);
+            }//if
+
         }//for
 
         //将雷的位置打乱，采用洗牌算法
         int x1 = 0;
         int y1 = 0;
         for(int i = 0;i<mine_count;i++){
-            int x = (int)(Math.random()*weight) % weight;
-            int y = (int)(Math.random()*height) % height;
+            x = (int)(Math.random()*weight) % weight;
+            y = (int)(Math.random()*height) % height;
             Cell temp = cells[y1][x1];
             cells[y1][x1] = cells[y][x];
             cells[y][x] = temp;
-            if(x1<weight-1){
-                x1++;
-            }else {
-                y1++;
-                x1=0;
-            }//if
+            Point point = getNextCell(x1,y1);
+            x1 = (int)point.getX();
+            y1 = (int)point.getY();
         }//for
 
         //计算非雷格子周围雷数
@@ -74,26 +74,56 @@ public class MinePane {
      * @param x x轴
      * @param y y轴
      */
-    public void firstSweep(int x,int y){
+    private void firstSweep(int x,int y){
+        is_first_sweep = false;
+        //如果第一次点击的位置是雷则转移
         if(cells[y][x].isMine()){
             int x1 = (int)(Math.random()*weight) % weight;
             int y1 = (int)(Math.random()*height) % height;
             while(cells[y1][x1].isMine()){
-                if(x1<(weight-1)){
-                    x1++;
-                }else if(x1==(weight-1) && y1<(height-1)){
-                    x1=0;
-                    y1++;
-                }else {
-                    y1=0;
-                    x1=0;
-                }
+                Point point = getNextCell(x1,y1);
+                x1 = (int)point.getX();
+                y1 = (int)point.getY();
             }
+
+
             Cell temp = cells[y][x];
             cells[y][x] = cells[y1][x1];
             cells[y1][x1] = temp;
         }
+
+        //把第一次点击的格子周围的雷都转移
+        Cell around_cells[] = aroundCells(x,y);
+        for(int i = 0;i<around_cells.length;i++){
+            if(around_cells[i].isMine()){
+                int x1 = (int)(Math.random()*weight) % weight;
+                int y1 = (int)(Math.random()*height) % height;
+                boolean is_around_cell = false;
+                do{
+                    is_around_cell = false;
+                    Point point = getNextCell(x1,y1);
+                    x1 = (int)point.getX();
+                    y1 = (int)point.getY();
+                    for(int j = 0;j<around_cells.length;j++){
+                        if(cells[y1][x1] == around_cells[j])is_around_cell = true;
+                    }
+                    if(cells[y1][x1] == cells[y][x])is_around_cell = true;
+                }while(cells[y1][x1].isMine() || is_around_cell);
+                Point point = getCellPoint(around_cells[i]);
+                int x2 = (int)point.getX();
+                int y2 = (int)point.getY();
+                Cell temp = cells[y2][x2];
+                cells[y2][x2] = cells[y1][x1];
+                cells[y1][x1] = temp;
+            }
+
+
+        }
+
+        //重新计算整个扫雷面板的周围雷数目
         flushCellsMineCount();
+
+
         sweep(x,y);
 
     }
@@ -133,6 +163,11 @@ public class MinePane {
      * @return 是否为雷
      */
     public boolean sweep(int x,int y){
+        if(is_first_sweep){
+            firstSweep(x,y);
+            return false;
+        }
+
         if(!cells[y][x].isMine() && cells[y][x].getArroundMineCount() == 0 && cells[y][x].isCover()){
 
             cells[y][x].setCover(false);
@@ -177,7 +212,8 @@ public class MinePane {
                     arount_cells[i].setCover(false);
                     return true;
                 }else {
-                    arount_cells[i].setCover(false);
+                    Point p = getCellPoint(arount_cells[i]);
+                    sweep((int)p.getX(),(int)p.getY());
                 }
 
             }
@@ -235,6 +271,53 @@ public class MinePane {
     }
 
 
+    /**
+     * 获取一个格子的坐标
+     * @param cell
+     * @return 坐标
+     */
+    private Point getCellPoint(Cell cell){
+        Point point = new Point();
+        for(int y = 0; y < height;y++){
+            for(int x = 0;x<weight;x++){
+                if(cells[y][x]==cell){
+                    point.setLocation(x,y);
+                }
+            }
+        }
+        return point;
+    }
+
+    /**
+     * 返回一个坐标的下一个坐标
+     * @param x
+     * @param y
+     * @return 下一个坐标
+     */
+    private Point getNextCell(int x,int y){
+        int x1 = x;
+        int y1 = y;
+        if(x1<(weight-1)){
+            x1++;
+        }else if(x1==(weight-1) && y1<(height-1)){
+            x1=0;
+            y1++;
+        }else {
+            y1=0;
+            x1=0;
+        }
+
+        Point point = new Point(x1,y1);
+        return point;
+    }
+
+
+
+
+
+
+
+
     public void printPane(){
         for(int y = 0;y<height;y++){
             for(int x = 0;x<weight;x++){
@@ -255,11 +338,11 @@ public class MinePane {
         int height_pixel = height/this.height;
         Image cover = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Cover.png").getImage();
         cover = new ImageIcon(cover.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
-        Image flag = new ImageIcon("img\\Flag.png").getImage();
+        Image flag = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Flag.png").getImage();
         flag = new ImageIcon(flag.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
-        Image doubt = new ImageIcon("img\\Doubt.png").getImage();
+        Image doubt = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Doubt.png").getImage();
         doubt = new ImageIcon(doubt.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
-        Image num = new ImageIcon("img\\Num.png").getImage();
+        Image num = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Num.png").getImage();
         num = new ImageIcon(num.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
         for(int y = 0;y<this.height;y++){
 
@@ -277,6 +360,11 @@ public class MinePane {
                     }
                 }else {
                     g.drawImage(num,x*weight_pixel,y*height_pixel, null);
+                    if(cells[y][x].isMine()){
+                        g.drawString("*",x*weight_pixel+10,y*height_pixel+15);
+                    }else {
+                        g.drawString(cells[y][x].getArroundMineCount()+"",x*weight_pixel+10,y*height_pixel+15);
+                    }
 
                 }
 
@@ -288,7 +376,7 @@ public class MinePane {
                 }else {
                     g.drawString(cells[y][x].getArroundMineCount()+"",x*weight_pixel,y*height_pixel);
                 }*/
-            }
+        }
         }
 
     }
