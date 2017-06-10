@@ -22,7 +22,10 @@ public class MainFrame extends JFrame {
         pane = new MinePane(15,15,30);
         main_panel = new JPanel(){
             public void paint(Graphics g){
-                pane.paintPane(this.getWidth(),this.getHeight(),g);
+                super.paint(g);
+                if(pane != null){
+                    pane.paintPane(this.getWidth(),this.getHeight(),g);
+                }
             }
         };
 
@@ -35,9 +38,7 @@ public class MainFrame extends JFrame {
                 int x = e.getX() / (main_panel.getWidth()/15);
                 int y = e.getY() / (main_panel.getHeight()/15);
                 if(e.getClickCount() == 1){
-
                     if(e.getButton() == MouseEvent.BUTTON1){
-                        System.out.println("x:"+x+",y:"+y);
                         pane.sweep(x,y);
                     }else if(e.getButton() == MouseEvent.BUTTON3){
                         pane.setFlag(x,y);
@@ -49,13 +50,12 @@ public class MainFrame extends JFrame {
                         try {
                             pane.aroundSweep(x,y);
                         } catch (FlagNotEqualsMineException e1) {
-                            e1.printStackTrace();
+
                         }
                     }else if(e.getButton() == MouseEvent.BUTTON3){
                         pane.setFlag(x,y);
                     }
                 }
-
                 main_panel.repaint();
             }
 
@@ -80,9 +80,7 @@ public class MainFrame extends JFrame {
             }
         });
 
-
         this.add(main_panel,BorderLayout.CENTER);
-
         this.setSize(600,600);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -154,8 +154,7 @@ public class MinePane {
     }
 
     /**
-     * 扫雷    TBD    TBD       TBD           TBD              TBD                   TBD
-     * 改正不会连续清除周围格子周围雷数为0的问题
+     * 扫雷
      * @param x x坐标
      * @param y y坐标
      * @return 是否为雷
@@ -165,6 +164,7 @@ public class MinePane {
             firstSweep(x,y);
             return false;
         }
+        if(cells[y][x].isFlag() || cells[y][x].isDoubt())return false;
 
         if(!cells[y][x].isMine() && cells[y][x].getArroundMineCount() == 0 && cells[y][x].isCover()){
 
@@ -342,12 +342,15 @@ public class MinePane {
         doubt = new ImageIcon(doubt.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
         Image num = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Num.png").getImage();
         num = new ImageIcon(num.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+        Image nums[] = new Image[8];
+        for(int i = 0;i<nums.length;i++){
+            nums[i] = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\"+(i+1)+".png").getImage();
+            nums[i] = new ImageIcon(nums[i].getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+        }
+
+
         for(int y = 0;y<this.height;y++){
-
             for(int x = 0;x<this.weight;x++){
-
-
-
                 if(cells[y][x].isCover()){
                     g.drawImage(cover, x*weight_pixel,y*height_pixel, null);
                     if(cells[y][x].isFlag()){
@@ -361,21 +364,18 @@ public class MinePane {
                     if(cells[y][x].isMine()){
                         g.drawString("*",x*weight_pixel+10,y*height_pixel+15);
                     }else {
-                        g.drawString(cells[y][x].getArroundMineCount()+"",x*weight_pixel+10,y*height_pixel+15);
-                    }
+                        if(cells[y][x].getArroundMineCount() >0){
+                            int index = cells[y][x].getArroundMineCount()-1;
+                            g.drawImage(nums[index],x*weight_pixel,y*height_pixel,null);
+                        }//if
 
-                }
+                    }//if
+
+                }//if
 
 
-                /*
-                if(cells[y][x].isMine()){
-
-                    g.drawString("*",x*weight_pixel,y*height_pixel);
-                }else {
-                    g.drawString(cells[y][x].getArroundMineCount()+"",x*weight_pixel,y*height_pixel);
-                }*/
-        }
-        }
+            }//for
+        }//for
 
     }
 
