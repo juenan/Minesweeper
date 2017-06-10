@@ -17,9 +17,18 @@ import java.awt.event.MouseListener;
 public class MainFrame extends JFrame {
     private MinePane pane;
     private JPanel main_panel;
+    int weight,height;
+
 
     public MainFrame(){
-        pane = new MinePane(30,16,99);
+        this.setBounds(500,500,600,600);
+        SelectModePanel selectpanel = new SelectModePanel();
+        DialogPanel dialog = new DialogPanel(selectpanel);
+        dialog.showDialog(this,"选择难度");
+        Dimension dimension = selectpanel.getDimension();
+
+
+        pane = new MinePane((int)dimension.getWidth(),(int)dimension.getHeight(),selectpanel.getMines());
         main_panel = new JPanel(){
             public void paint(Graphics g){
                 super.paint(g);
@@ -35,40 +44,16 @@ public class MainFrame extends JFrame {
         main_panel.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                /*
-                int x = e.getX() / (main_panel.getWidth()/15);
-                int y = e.getY() / (main_panel.getHeight()/15);
-                if(e.getClickCount() == 1){
-                    if(e.getButton() == MouseEvent.BUTTON1){
-                        pane.sweep(x,y);
-                    }else if(e.getButton() == MouseEvent.BUTTON3){
-                        pane.setFlag(x,y);
-                    }
-                }
-
-                if(e.getClickCount() > 1){
-                    if(e.getButton() == MouseEvent.BUTTON1){
-                        try {
-                            pane.aroundSweep(x,y);
-                        } catch (FlagNotEqualsMineException e1) {
-
-                        }
-                    }else if(e.getButton() == MouseEvent.BUTTON3){
-                        pane.setFlag(x,y);
-                    }
-                }
-                main_panel.repaint();*/
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
-
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                int x = e.getX() / (main_panel.getWidth()/30);
-                int y = e.getY() / (main_panel.getHeight()/16);
+                int x = e.getX() / (main_panel.getWidth()/(int)dimension.getWidth());
+                int y = e.getY() / (main_panel.getHeight()/(int)dimension.getHeight());
                 if(e.getClickCount() == 1){
                     if(e.getButton() == MouseEvent.BUTTON1){
                         pane.sweep(x,y);
@@ -95,12 +80,10 @@ public class MainFrame extends JFrame {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-
             }
         });
 
