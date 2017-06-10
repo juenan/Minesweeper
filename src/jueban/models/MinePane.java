@@ -228,6 +228,7 @@ public class MinePane {
      * @param y
      */
     public void setFlag(int x,int y){
+        if(!cells[y][x].isCover())return;
         if(!cells[y][x].isFlag() && !cells[y][x].isDoubt()){
             cells[y][x].setFlag(true);
         }else if(cells[y][x].isFlag() && !cells[y][x].isDoubt()){
@@ -347,6 +348,8 @@ public class MinePane {
             nums[i] = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\"+(i+1)+".png").getImage();
             nums[i] = new ImageIcon(nums[i].getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
         }
+        Image mine = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Mine.png").getImage();
+        mine = new ImageIcon(mine.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
 
 
         for(int y = 0;y<this.height;y++){
@@ -362,7 +365,7 @@ public class MinePane {
                 }else {
                     g.drawImage(num,x*weight_pixel,y*height_pixel, null);
                     if(cells[y][x].isMine()){
-                        g.drawString("*",x*weight_pixel+10,y*height_pixel+15);
+                        g.drawImage(mine,x*weight_pixel,y*height_pixel,null);
                     }else {
                         if(cells[y][x].getArroundMineCount() >0){
                             int index = cells[y][x].getArroundMineCount()-1;

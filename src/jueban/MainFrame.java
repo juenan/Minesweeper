@@ -19,7 +19,7 @@ public class MainFrame extends JFrame {
     private JPanel main_panel;
 
     public MainFrame(){
-        pane = new MinePane(15,15,30);
+        pane = new MinePane(30,16,99);
         main_panel = new JPanel(){
             public void paint(Graphics g){
                 super.paint(g);
@@ -35,6 +35,7 @@ public class MainFrame extends JFrame {
         main_panel.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                /*
                 int x = e.getX() / (main_panel.getWidth()/15);
                 int y = e.getY() / (main_panel.getHeight()/15);
                 if(e.getClickCount() == 1){
@@ -56,7 +57,7 @@ public class MainFrame extends JFrame {
                         pane.setFlag(x,y);
                     }
                 }
-                main_panel.repaint();
+                main_panel.repaint();*/
             }
 
             @Override
@@ -66,6 +67,29 @@ public class MainFrame extends JFrame {
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                int x = e.getX() / (main_panel.getWidth()/30);
+                int y = e.getY() / (main_panel.getHeight()/16);
+                if(e.getClickCount() == 1){
+                    if(e.getButton() == MouseEvent.BUTTON1){
+                        pane.sweep(x,y);
+                    }else if(e.getButton() == MouseEvent.BUTTON3){
+                        pane.setFlag(x,y);
+                    }
+                }
+
+                if(e.getClickCount() > 1){
+                    if(e.getButton() == MouseEvent.BUTTON1){
+                        try {
+                            pane.aroundSweep(x,y);
+                        } catch (FlagNotEqualsMineException e1) {
+
+                        }
+                    }else if(e.getButton() == MouseEvent.BUTTON3){
+                        pane.setFlag(x,y);
+                    }
+                }
+                main_panel.repaint();
+                main_panel.repaint();
 
             }
 
@@ -87,6 +111,7 @@ public class MainFrame extends JFrame {
 
 
     }
+
 
 
 
