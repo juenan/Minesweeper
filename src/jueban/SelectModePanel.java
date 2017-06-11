@@ -42,15 +42,18 @@ public class SelectModePanel extends JPanel{
         this.add(new JLabel("宽度:"));
         weight = new JTextField(5);
         this.add(weight);
-        this.add(new JLabel("高度"));
+        this.add(new JLabel("高度:"));
         height = new JTextField(5);
         this.add(height);
+        this.add(new JLabel("地雷个数:"));
         mines = new JTextField(5);
         this.add(mines);
     }
 
 
     public Dimension getDimension(){
+        this.setLayout(new FlowLayout());
+        this.setSize(300,500);
         Dimension dimension = new Dimension();
         int w = 0;
         int h = 0;

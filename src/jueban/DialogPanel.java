@@ -13,10 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 public class DialogPanel extends JPanel{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7308490322386844748L;
 	private JButton cancel;
 	private JButton okbutton;
 	private boolean ok = false;

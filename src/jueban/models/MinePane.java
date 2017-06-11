@@ -23,11 +23,13 @@ public class MinePane {
         //初始化数据
         if(weight < MAX_WEIGHT)this.weight = weight;else this.weight = MAX_WEIGHT;
         if(height < MAX_HEIGHT)this.height = height;else this.height = MAX_HEIGHT;
-        if(mine_count < (weight*height))this.mine_count = mine_count;
-        else this.mine_count = this.height*this.weight-1;
+        if(mine_count < (weight*height-9))this.mine_count = mine_count;
+        else this.mine_count = this.height*this.weight-9;
 
         //初始化格子
         initCell();
+
+
     }
 
     /**
@@ -312,7 +314,24 @@ public class MinePane {
 
 
 
+    public boolean isWin(){
+        int uncover_nomine_count = 0;
+        for(int y = 0;y<height;y++){
+            for(int x = 0;x<weight;x++){
+                if(!cells[y][x].isCover() && !cells[y][x].isMine())uncover_nomine_count++;
+            }
+        }
+        if(uncover_nomine_count == weight*height-mine_count)return true;else return false;
+    }
 
+
+    public void uncoverAllMines(){
+        for(int y = 0;y<height;y++){
+            for(int x = 0;x<weight;x++){
+                if(cells[y][x].isMine())cells[y][x].setCover(false);
+            }
+        }
+    }
 
 
 
@@ -332,55 +351,57 @@ public class MinePane {
     }
 
 
+    //在画板上绘出扫雷面板的现状
     public void paintPane(int weight,int height,Graphics g){
-        int weight_pixel = weight/this.weight;
-        int height_pixel = height/this.height;
-        Image cover = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Cover.png").getImage();
-        cover = new ImageIcon(cover.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
-        Image flag = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Flag.png").getImage();
-        flag = new ImageIcon(flag.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
-        Image doubt = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Doubt.png").getImage();
-        doubt = new ImageIcon(doubt.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
-        Image num = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Num.png").getImage();
-        num = new ImageIcon(num.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+        int w_pix = weight/this.weight;
+        int h_pix = height/this.height;
+        Image cover = new ImageIcon(System.getProperty("user.dir")+"\\img\\Cover.png").getImage();
+        cover = new ImageIcon(cover.getScaledInstance(w_pix,h_pix,Image.SCALE_DEFAULT)).getImage();
+        Image flag = new ImageIcon(System.getProperty("user.dir")+"\\img\\Flag.png").getImage();
+        flag = new ImageIcon(flag.getScaledInstance(w_pix,h_pix,Image.SCALE_DEFAULT)).getImage();
+        Image doubt = new ImageIcon(System.getProperty("user.dir")+"\\img\\Doubt.png").getImage();
+        doubt = new ImageIcon(doubt.getScaledInstance(w_pix,h_pix,Image.SCALE_DEFAULT)).getImage();
+        Image num = new ImageIcon(System.getProperty("user.dir")+"\\img\\Num.png").getImage();
+        num = new ImageIcon(num.getScaledInstance(w_pix,h_pix,Image.SCALE_DEFAULT)).getImage();
         Image nums[] = new Image[8];
         for(int i = 0;i<nums.length;i++){
-            nums[i] = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\"+(i+1)+".png").getImage();
-            nums[i] = new ImageIcon(nums[i].getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+            nums[i] = new ImageIcon(System.getProperty("user.dir")+"\\img\\"+(i+1)+".png").getImage();
+            nums[i] = new ImageIcon(nums[i].getScaledInstance(w_pix,h_pix,Image.SCALE_DEFAULT)).getImage();
         }
-        Image mine = new ImageIcon("D:\\ideaspace\\Minesweeper\\src\\jueban\\models\\img\\Mine.png").getImage();
-        mine = new ImageIcon(mine.getScaledInstance(weight_pixel,height_pixel,Image.SCALE_DEFAULT)).getImage();
+        Image mine = new ImageIcon(System.getProperty("user.dir")+"\\img\\Mine.png").getImage();
+        mine = new ImageIcon(mine.getScaledInstance(w_pix,h_pix,Image.SCALE_DEFAULT)).getImage();
+
 
 
         for(int y = 0;y<this.height;y++){
             for(int x = 0;x<this.weight;x++){
+                int pos_x = x*w_pix;
+                int pos_y = y*h_pix;
                 if(cells[y][x].isCover()){
-                    g.drawImage(cover, x*weight_pixel,y*height_pixel, null);
+                    g.drawImage(cover, pos_x,pos_y, null);
                     if(cells[y][x].isFlag()){
-                        g.drawImage(flag,x*weight_pixel,y*height_pixel, null);
+                        g.drawImage(flag,pos_x,pos_y, null);
                     }
                     if(cells[y][x].isDoubt()){
-                        g.drawImage(doubt,x*weight_pixel,y*height_pixel, null);
+                        g.drawImage(doubt,pos_x,pos_y, null);
                     }
                 }else {
-                    g.drawImage(num,x*weight_pixel,y*height_pixel, null);
+                    g.drawImage(num,pos_x,pos_y, null);
                     if(cells[y][x].isMine()){
-                        g.drawImage(mine,x*weight_pixel,y*height_pixel,null);
+                        g.drawImage(mine,pos_x,pos_y,null);
                     }else {
                         if(cells[y][x].getArroundMineCount() >0){
                             int index = cells[y][x].getArroundMineCount()-1;
-                            g.drawImage(nums[index],x*weight_pixel,y*height_pixel,null);
+                            g.drawImage(nums[index],pos_x,pos_y,null);
                         }//if
 
                     }//if
-
                 }//if
-
-
             }//for
         }//for
 
     }
+
 
 
 
